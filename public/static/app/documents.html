@@ -1,0 +1,7 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Documents — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script><script src="../assets/js/formspark.js"></script><script src="../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"documents",session}); const c=document.getElementById("content"); const { data: docs } = await sb.from("documents").select("*").order("created_at",{ascending:false});
+c.innerHTML = `<h1>Documents</h1><div class="card"><table><thead><tr><th>Name</th><th>Type</th><th>Date</th></tr></thead><tbody>${(docs||[]).map(d=>`<tr><td>${esc(d.name)}</td><td>${esc(d.kind)}</td><td>${new Date(d.created_at).toLocaleDateString()}</td></tr>`).join("")||`<tr><td colspan="3" class="muted" style="text-align:center;padding:40px">No documents</td></tr>`}</tbody></table></div>`; })();
+</script></body></html>

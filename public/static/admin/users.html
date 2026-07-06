@@ -1,0 +1,19 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin — Users</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+<div class="shell"><aside class="sidebar"><div class="brand"><span class="brand-dot"></span>Admin</div><nav class="nav"><a href="index.html" id="n-index">◆ Overview</a><a href="deposits.html" id="n-deposits">↓ Deposits</a><a href="withdrawals.html" id="n-withdrawals">↑ Withdrawals</a><a href="users.html" id="n-users">☺ Users</a><div class="nav-section">Back</div><a href="../app/dashboard.html">← User app</a></nav><div style="margin-top:24px;padding:12px"><button class="btn btn-ghost btn-sm btn-block" onclick="signOutAndGo()">Sign out</button></div></aside><main class="main"><div id="content"></div></main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script>
+<script>document.getElementById("n-users")?.classList.add("active");
+(async () => { const session = await requireAuth({admin:true}); if(!session) return; const c=document.getElementById("content"); async function load(){
+  const { data: profiles } = await sb.from("profiles").select("*");
+  const { data: accounts } = await sb.from("accounts").select("*");
+  const accMap = Object.fromEntries((accounts||[]).map(a=>[a.user_id,a]));
+  c.innerHTML = `<h1>Users</h1><div class="card"><table><thead><tr><th>Name</th><th>User ID</th><th>Balance</th><th>Adjust</th></tr></thead><tbody>${(profiles||[]).map(p=>{const a=accMap[p.user_id]||{};return `<tr><td>${esc(p.first_name||"")} ${esc(p.last_name||"")}</td><td class="mono" style="font-size:11px">${p.user_id.slice(0,12)}...</td><td class="mono">${money(a.balance||0)}</td><td><div class="row"><input id="a-${p.user_id}" placeholder="±amount" style="width:120px" type="number" step="0.01"><input id="r-${p.user_id}" placeholder="reason" style="width:160px"><button class="btn btn-sm btn-primary" onclick="adj(\x27${p.user_id}\x27)">Apply</button></div></td></tr>`;}).join("")}</tbody></table></div>`;
+}
+window.adj = async uid => {
+  const d = Number(document.getElementById("a-"+uid).value);
+  const r = document.getElementById("r-"+uid).value || "Admin adjustment";
+  if (!d) return;
+  const { error } = await sb.rpc("adjust_balance", { _user_id: uid, _delta: d, _reason: r });
+  if (error) alert(error.message); else load();
+};
+load(); })();
+</script></body></html>

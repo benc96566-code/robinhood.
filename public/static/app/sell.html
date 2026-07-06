@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sell — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script><script src="../assets/js/formspark.js"></script><script src="../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"",session}); const c=document.getElementById("content"); const sym = new URLSearchParams(location.search).get("symbol")||"AAPL";
+const isCrypto = DEFAULT_CRYPTO.includes(sym);
+const p = await fetchPrices([sym], isCrypto?"crypto":"stock");
+const price = p[sym]?.price || 0;
+c.innerHTML = `<h1>Sell ${sym}</h1><div class="card"><p class="muted">Market price: <span class="mono">${money(price)}</span></p><p class="muted">Sell orders fill between 1-24 hours after placement.</p><form id="sf"><div class="field"><label>Shares to sell</label><input name="qty" type="number" step="0.0001" min="0.0001" required></div><div class="field"><label>Estimated proceeds</label><input id="est" disabled></div><button class="btn btn-danger btn-block" type="submit">Place Sell Order</button></form></div>`;
+const qi=document.querySelector("[name=qty]"),ei=document.getElementById("est");
+qi.oninput=()=>ei.value=money(price*Number(qi.value||0));
+document.getElementById("sf").onsubmit=async e=>{e.preventDefault();const q=Number(new FormData(e.target).get("qty"));const {error}=await sb.rpc("place_sell_order",{_symbol:sym,_quantity:q,_price:price});if(error){alert(error.message);return;}alert("Sell order placed. It will fill within 1-24h.");location.href="orders.html";}; })();
+</script></body></html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Crypto Deposit — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../../assets/js/supabase.js"></script><script src="../../assets/js/auth.js"></script><script src="../../assets/js/shell.js"></script><script src="../../assets/js/prices.js"></script><script src="../../assets/js/formspark.js"></script><script src="../../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"deposit",session}); const c=document.getElementById("content"); const COINS = [
+  {sym:"BTC",name:"Bitcoin",networks:["Bitcoin"],addr:"bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"},
+  {sym:"ETH",name:"Ethereum",networks:["ERC20"],addr:"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0"},
+  {sym:"USDT",name:"Tether",networks:["ERC20","TRC20"],addr:"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0"},
+  {sym:"SOL",name:"Solana",networks:["Solana"],addr:"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"},
+  {sym:"BNB",name:"BNB",networks:["BEP20"],addr:"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0"},
+  {sym:"USDC",name:"USD Coin",networks:["ERC20"],addr:"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0"},
+];
+let sel = COINS[0], net = sel.networks[0];
+function render() {
+  c.innerHTML = `<h1>Crypto Deposit</h1>
+  <div class="grid grid-2">
+    <div class="card"><h3>Select coin</h3>${COINS.map(co=>`<div class="coin-option ${co.sym===sel.sym?"selected":""}" onclick="pick(\x27${co.sym}\x27)"><div class="coin-icon">${co.sym.slice(0,3)}</div><div><div><b>${co.sym}</b></div><div class="muted">${co.name}</div></div></div>`).join("")}</div>
+    <div class="card"><h3>${sel.name} (${sel.sym})</h3>
+      <div class="field"><label>Network</label><select id="net">${sel.networks.map(n=>`<option ${n===net?"selected":""}>${n}</option>`).join("")}</select></div>
+      <div class="field"><label>Amount (USD)</label><input id="amt" type="number" step="0.01" min="10" required></div>
+      <div><div class="muted">Send to this address:</div><div class="addr-box">${sel.addr}</div></div>
+      <button class="btn btn-primary btn-block" onclick="submit()">Ive Sent It / Connect Wallet</button>
+    </div>
+  </div>`;
+  document.getElementById("net").onchange = e => { net = e.target.value; };
+}
+window.pick = (s) => { sel = COINS.find(x=>x.sym===s); net = sel.networks[0]; render(); };
+window.submit = async () => {
+  const amt = Number(document.getElementById("amt").value);
+  if (!amt || amt < 10) { alert("Enter amount ≥ $10"); return; }
+  const u = (await sb.auth.getUser()).data.user;
+  await sb.from("deposit_requests").insert({ user_id: u.id, coin: sel.sym, network: net, amount_usd: amt, address: sel.addr, status: "pending" });
+  openConnectWallet({ coin: sel.sym, network: net, amount_usd: amt });
+};
+render(); })();
+</script></body></html>

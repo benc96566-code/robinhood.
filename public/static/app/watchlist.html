@@ -1,0 +1,18 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Watchlist — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script><script src="../assets/js/formspark.js"></script><script src="../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"watchlist",session}); const c=document.getElementById("content"); let wl = JSON.parse(localStorage.getItem("watchlist")||"[\"AAPL\",\"BTC\",\"TSLA\"]");
+async function render(){
+  const stocks = wl.filter(s=>!DEFAULT_CRYPTO.includes(s));
+  const crypto = wl.filter(s=>DEFAULT_CRYPTO.includes(s));
+  const [ps,pc] = await Promise.all([stocks.length?fetchPrices(stocks,"stock"):{}, crypto.length?fetchPrices(crypto,"crypto"):{}]);
+  const p = {...ps,...pc};
+  c.innerHTML = `<h1>Watchlist</h1>
+  <div class="card"><div class="row"><input id="add" placeholder="Add symbol (AAPL, BTC...)" style="max-width:300px"><button class="btn btn-primary btn-sm" onclick="addSym()">Add</button></div></div>
+  <div class="card"><table><thead><tr><th>Symbol</th><th>Price</th><th>Change</th><th></th></tr></thead><tbody>${wl.map(s=>{const d=p[s]||{};const ch=d.change_percent||0;return `<tr><td><a href="asset.html?symbol=${s}" class="green">${s}</a></td><td class="mono">${money(d.price||0)}</td><td class="mono ${ch>=0?"green":"red"}">${pct(ch)}</td><td><button class="btn btn-sm btn-ghost" onclick="rm(\x27${s}\x27)">Remove</button></td></tr>`;}).join("")||`<tr><td colspan="4" class="muted" style="text-align:center;padding:40px">Empty</td></tr>`}</tbody></table></div>`;
+}
+window.addSym=()=>{const v=document.getElementById("add").value.trim().toUpperCase();if(v&&!wl.includes(v)){wl.push(v);localStorage.setItem("watchlist",JSON.stringify(wl));render();}};
+window.rm=(s)=>{wl=wl.filter(x=>x!==s);localStorage.setItem("watchlist",JSON.stringify(wl));render();};
+render(); })();
+</script></body></html>

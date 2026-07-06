@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Search — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script><script src="../assets/js/formspark.js"></script><script src="../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"search",session}); const c=document.getElementById("content"); const q = new URLSearchParams(location.search).get("q")||"";
+c.innerHTML = `<h1>Search</h1><div class="card"><input id="q" value="${esc(q)}" placeholder="Search stocks & crypto"></div><div id="res"></div>`;
+const inp = document.getElementById("q");
+function doSearch(){
+  const v = inp.value.trim().toUpperCase();
+  const pool = [...DEFAULT_STOCKS,...DEFAULT_CRYPTO];
+  const matches = v?pool.filter(s=>s.includes(v)):pool;
+  document.getElementById("res").innerHTML = `<div class="card"><table><tbody>${matches.map(s=>`<tr><td><a href="asset.html?symbol=${s}" class="green">${s}</a></td><td class="muted">${DEFAULT_CRYPTO.includes(s)?"Crypto":"Stock"}</td><td><a href="buy.html?symbol=${s}" class="btn btn-sm btn-primary">Buy</a></td></tr>`).join("")||`<tr><td class="muted">No results</td></tr>`}</tbody></table></div>`;
+}
+inp.oninput = doSearch; doSearch(); })();
+</script></body></html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Asset — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script><script src="../assets/js/formspark.js"></script><script src="../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"",session}); const c=document.getElementById("content"); const sym = new URLSearchParams(location.search).get("symbol")||"AAPL";
+const isCrypto = DEFAULT_CRYPTO.includes(sym);
+const p = await fetchPrices([sym], isCrypto?"crypto":"stock");
+const d = p[sym]||{};
+const ch = d.change_percent||0;
+c.innerHTML = `<h1>${sym}</h1><div class="card"><div class="card-value mono">${money(d.price||0)}</div><div class="mono ${ch>=0?"green":"red"}">${pct(ch)} today</div><canvas class="chart" id="ch" style="margin-top:16px"></canvas><div class="row" style="margin-top:16px"><a href="buy.html?symbol=${sym}" class="btn btn-primary">Buy</a><a href="sell.html?symbol=${sym}" class="btn btn-secondary">Sell</a><button class="btn btn-ghost" onclick="addWl()">Add to watchlist</button></div></div>`;
+const base = d.price||100;
+const pts = Array.from({length:80},(_,i)=>base + Math.sin(i/6)*base*0.03 + (Math.random()-0.5)*base*0.01);
+sparkline(document.getElementById("ch"), pts, ch>=0?"#00c805":"#ff5a5f");
+window.addWl=()=>{const w=JSON.parse(localStorage.getItem("watchlist")||"[]");if(!w.includes(sym)){w.push(sym);localStorage.setItem("watchlist",JSON.stringify(w));alert("Added to watchlist");}}; })();
+</script></body></html>

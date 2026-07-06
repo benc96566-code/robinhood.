@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Markets — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script><script src="../assets/js/formspark.js"></script><script src="../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"markets",session}); const c=document.getElementById("content"); c.innerHTML=`<h1>Markets</h1><div class="tabs" id="tabs"><div class="tab active" data-k="stock">Stocks</div><div class="tab" data-k="crypto">Crypto</div></div><div id="list" class="card">Loading...</div>`;
+async function load(kind){
+  const syms = kind==="stock"?DEFAULT_STOCKS:DEFAULT_CRYPTO;
+  const p = await fetchPrices(syms,kind);
+  document.getElementById("list").innerHTML = `<table><thead><tr><th>Symbol</th><th>Price</th><th>Change</th><th></th></tr></thead><tbody>${
+    syms.map(s=>{const d=p[s]||{};const ch=d.change_percent||0;return `<tr><td><a href="asset.html?symbol=${s}" class="green">${s}</a></td><td class="mono">${money(d.price||0)}</td><td class="mono ${ch>=0?"green":"red"}">${pct(ch)}</td><td><a href="buy.html?symbol=${s}" class="btn btn-sm btn-primary">Buy</a></td></tr>`;}).join("")
+  }</tbody></table>`;
+}
+document.querySelectorAll("#tabs .tab").forEach(t=>t.onclick=()=>{document.querySelectorAll("#tabs .tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");load(t.dataset.k);});
+load("stock"); })();
+</script></body></html>

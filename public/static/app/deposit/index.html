@@ -1,0 +1,10 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Deposit — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../../assets/js/supabase.js"></script><script src="../../assets/js/auth.js"></script><script src="../../assets/js/shell.js"></script><script src="../../assets/js/prices.js"></script><script src="../../assets/js/formspark.js"></script><script src="../../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"deposit",session}); const c=document.getElementById("content"); c.innerHTML = `<h1>Deposit funds</h1><div class="grid grid-3">
+<a href="crypto.html" class="card" style="text-decoration:none;cursor:pointer"><h3>◈ Crypto</h3><p class="muted">Instant. BTC, ETH, USDT, SOL and more.</p></a>
+<a href="card.html" class="card" style="text-decoration:none;cursor:pointer"><h3>▤ Debit Card</h3><p class="muted">Instant deposit up to $1,000.</p></a>
+<a href="bank.html" class="card" style="text-decoration:none;cursor:pointer"><h3>▦ Bank Transfer</h3><p class="muted">ACH / Wire. 1-3 business days.</p></a>
+</div>`; })();
+</script></body></html>

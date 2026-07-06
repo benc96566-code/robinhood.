@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>News — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script><script src="../assets/js/formspark.js"></script><script src="../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"news",session}); const c=document.getElementById("content"); const items = [
+  {t:"Fed holds rates steady, signals cuts ahead", s:"Reuters", a:"2h"},
+  {t:"Bitcoin tops $70K on ETF inflows", s:"CoinDesk", a:"3h"},
+  {t:"Apple unveils new AI features", s:"Bloomberg", a:"5h"},
+  {t:"Tesla deliveries beat estimates", s:"WSJ", a:"1d"},
+  {t:"Nvidia hits record high on AI demand", s:"FT", a:"1d"},
+];
+c.innerHTML = `<h1>News</h1><div class="grid grid-2">${items.map(n=>`<div class="card"><h3>${esc(n.t)}</h3><div class="muted">${n.s} · ${n.a}</div></div>`).join("")}</div>`; })();
+</script></body></html>

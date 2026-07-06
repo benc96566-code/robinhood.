@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin — Overview</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+<div class="shell"><aside class="sidebar"><div class="brand"><span class="brand-dot"></span>Admin</div><nav class="nav"><a href="index.html" id="n-index">◆ Overview</a><a href="deposits.html" id="n-deposits">↓ Deposits</a><a href="withdrawals.html" id="n-withdrawals">↑ Withdrawals</a><a href="users.html" id="n-users">☺ Users</a><div class="nav-section">Back</div><a href="../app/dashboard.html">← User app</a></nav><div style="margin-top:24px;padding:12px"><button class="btn btn-ghost btn-sm btn-block" onclick="signOutAndGo()">Sign out</button></div></aside><main class="main"><div id="content"></div></main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script>
+<script>document.getElementById("n-index")?.classList.add("active");
+(async () => { const session = await requireAuth({admin:true}); if(!session) return; const c=document.getElementById("content"); const [{ count: dep }, { count: wd }, { count: usr }] = await Promise.all([
+  sb.from("deposit_requests").select("*",{count:"exact",head:true}).eq("status","pending"),
+  sb.from("withdrawal_requests").select("*",{count:"exact",head:true}).eq("status","pending"),
+  sb.from("profiles").select("*",{count:"exact",head:true}),
+]);
+c.innerHTML = `<h1>Admin Overview</h1><div class="grid grid-3">
+<a href="deposits.html" class="card" style="text-decoration:none"><div class="card-title">Pending Deposits</div><div class="card-value">${dep||0}</div></a>
+<a href="withdrawals.html" class="card" style="text-decoration:none"><div class="card-title">Pending Withdrawals</div><div class="card-value">${wd||0}</div></a>
+<a href="users.html" class="card" style="text-decoration:none"><div class="card-title">Users</div><div class="card-value">${usr||0}</div></a>
+</div>`; })();
+</script></body></html>

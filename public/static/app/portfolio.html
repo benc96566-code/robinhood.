@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Portfolio — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script><script src="../assets/js/formspark.js"></script><script src="../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"portfolio",session}); const c=document.getElementById("content"); const { data: orders } = await sb.from("orders").select("*").eq("status","filled").order("filled_at",{ascending:false});
+const holdings = {};
+(orders||[]).forEach(o=>{const q=o.side==="buy"?Number(o.quantity):-Number(o.quantity);holdings[o.symbol]=(holdings[o.symbol]||0)+q;});
+const active=Object.entries(holdings).filter(([,q])=>q>0);
+const syms=active.map(([s])=>s);
+let prices={};if(syms.length) prices=await fetchPrices(syms,"stock");
+const rows=active.map(([s,q])=>{const p=prices[s]?.price||0;const val=p*q;return `<tr><td><a href="asset.html?symbol=${s}" class="green">${s}</a></td><td class="mono">${q}</td><td class="mono">${money(p)}</td><td class="mono">${money(val)}</td><td><a href="sell.html?symbol=${s}" class="btn btn-sm btn-secondary">Sell</a></td></tr>`;}).join("")||`<tr><td colspan="5" class="muted" style="text-align:center;padding:40px">No holdings yet. <a href="markets.html" class="green">Start trading</a></td></tr>`;
+c.innerHTML=`<h1>Portfolio</h1><div class="card"><table><thead><tr><th>Symbol</th><th>Qty</th><th>Price</th><th>Value</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`; })();
+</script></body></html>

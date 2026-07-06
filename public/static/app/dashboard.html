@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script><script src="../assets/js/formspark.js"></script><script src="../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"dashboard",session}); const c=document.getElementById("content"); const { data: acc } = await sb.from("accounts").select("*").maybeSingle();
+c.innerHTML = `
+<h1>Dashboard</h1>
+<div class="ticker" id="tk"></div>
+<div class="grid grid-3">
+  <div class="card"><div class="card-title">Portfolio Value</div><div class="card-value mono">${money(acc?.balance||0)}</div><div class="muted">Total account value</div></div>
+  <div class="card"><div class="card-title">Buying Power</div><div class="card-value mono green">${money(acc?.buying_power||0)}</div><div class="muted"><a href="deposit/index.html" class="green">Deposit funds →</a></div></div>
+  <div class="card"><div class="card-title">Cash</div><div class="card-value mono">${money(acc?.balance||0)}</div><div class="muted"><a href="withdraw.html" class="green">Withdraw →</a></div></div>
+</div>
+<div class="card"><h2>Portfolio</h2><canvas class="chart" id="chart"></canvas></div>
+<div class="card"><h2>Quick Actions</h2><div class="row" style="flex-wrap:wrap">
+<a href="markets.html" class="btn btn-primary">Trade stocks</a>
+<a href="deposit/crypto.html" class="btn btn-secondary">Buy crypto</a>
+<a href="watchlist.html" class="btn btn-ghost">Watchlist</a>
+</div></div>`;
+renderTicker(document.getElementById("tk"));
+const canvas = document.getElementById("chart");
+const base = acc?.balance || 10000;
+const pts = Array.from({length:60},(_,i)=>base + Math.sin(i/5)*base*0.05 + i*base*0.002);
+sparkline(canvas, pts); })();
+</script></body></html>

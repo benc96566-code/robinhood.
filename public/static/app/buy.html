@@ -1,0 +1,14 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Buy — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../assets/js/supabase.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/shell.js"></script><script src="../assets/js/prices.js"></script><script src="../assets/js/formspark.js"></script><script src="../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"",session}); const c=document.getElementById("content"); const sym = new URLSearchParams(location.search).get("symbol")||"AAPL";
+const isCrypto = DEFAULT_CRYPTO.includes(sym);
+const p = await fetchPrices([sym], isCrypto?"crypto":"stock");
+const price = p[sym]?.price || 0;
+const { data: acc } = await sb.from("accounts").select("*").maybeSingle();
+c.innerHTML = `<h1>Buy ${sym}</h1><div class="card"><p class="muted">Market price: <span class="mono">${money(price)}</span></p><p class="muted">Buying power: <span class="mono green">${money(acc?.buying_power||0)}</span></p><form id="bf"><div class="field"><label>Shares</label><input name="qty" type="number" step="0.0001" min="0.0001" required></div><div class="field"><label>Estimated cost</label><input id="est" disabled></div><button class="btn btn-primary btn-block" type="submit">Review & Buy</button></form></div>`;
+const qi=document.querySelector("[name=qty]"),ei=document.getElementById("est");
+qi.oninput=()=>ei.value=money(price*Number(qi.value||0));
+document.getElementById("bf").onsubmit=async e=>{e.preventDefault();const q=Number(new FormData(e.target).get("qty"));const {error}=await sb.rpc("place_buy_order",{_symbol:sym,_quantity:q,_price:price});if(error){alert(error.message);return;}alert("Order filled");location.href="portfolio.html";}; })();
+</script></body></html>

